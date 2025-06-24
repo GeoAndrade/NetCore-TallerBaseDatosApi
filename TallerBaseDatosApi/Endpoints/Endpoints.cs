@@ -43,20 +43,32 @@ public class Endpoints : ICarterModule
         
         app.MapGet("/api/sales/guayaquil", async (ApplicationDbContext context) =>
         {
-            var result = await context.Branches
+            // Obtener las sucursales y sus ventas totales
+            var branchesSales = await context.Branches
                 .Where(b => b.City.Name == "Guayaquil")
                 .Select(b => new
                 {
                     BranchName = b.Name,
-                    TotalSales = b.Orders.Sum(o => o.Total),
-                    CityAverage = b.Orders.Any() ? b.Orders.Average(o => o.Total) : 0,
-                    Percentage = b.Orders.Any()
-                        ? (b.Orders.Sum(o => o.Total) - b.Orders.Average(o => o.Total)) /
-                        b.Orders.Average(o => o.Total) * 100
+                    TotalSales = b.Orders.Sum(o => o.Total)
+                })
+                .ToListAsync();
+
+            // Calcular el promedio de ventas totales por sucursal en la ciudad
+            var cityAverage = branchesSales.Any() ? branchesSales.Average(b => b.TotalSales) : 0;
+
+            // Proyectar los resultados finales, incluyendo el porcentaje
+            var result = branchesSales
+                .Select(b => new
+                {
+                    b.BranchName,
+                    b.TotalSales,
+                    CityAverage = cityAverage,
+                    Percentage = cityAverage != 0
+                        ? ((b.TotalSales - cityAverage) / cityAverage) * 100 // Convertir a porcentaje
                         : 0
                 })
-                .OrderBy(b => b.TotalSales)
-                .ToListAsync();
+                .OrderByDescending(b => b.TotalSales)
+                .ToList();
 
             return Results.Ok(result);
         });
@@ -64,7 +76,7 @@ public class Endpoints : ICarterModule
         app.MapGet("/api/sales/sierra", async (ApplicationDbContext context) =>
         {
             var result = (await context.Cities
-                .Where(c => c.Name == "Sierra" || c.Name == "Guayaquil" || c.Name == "Quito")
+                .Where(c => c.Name == "Quito" || c.Name == "Cuenca" || c.Name == "Ambato")
                 .SelectMany(c => c.Branches)
                 .SelectMany(b => b.Orders)
                 .GroupBy(o => o.Branch.City.Name)
