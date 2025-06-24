@@ -1,0 +1,12 @@
+﻿services:
+  #Database
+  tallerbasedatosdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+  #Api
+  tallerbasedatosapi:
+    image: tallerbasedatosapi
+    build:
+      context: .
+      dockerfile: TallerBaseDatosApi/Dockerfile
+volumes:
+  mssql_data:

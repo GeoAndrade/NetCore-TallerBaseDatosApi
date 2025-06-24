@@ -1,0 +1,6 @@
+@TallerBaseDatosApi_HostAddress = http://localhost:5274
+
+GET {{TallerBaseDatosApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

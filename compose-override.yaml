@@ -1,0 +1,27 @@
+﻿services:
+  #Database
+  tallerbasedatosdb:
+    container_name: tallerbasedatosdb
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=abc123*+
+    restart: always
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+  #Api
+  tallerbasedatosapi:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      #- ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=tallerbasedatosdb,1433;Database=TallerBaseDatosDb;User Id=sa;Password=abc123*+;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True
+    depends_on:
+      - tallerbasedatosdb
+    ports:
+      - "6001:8080"
+      #- "6062:8081"
+    volumes:
+      - ${HOME}/.microsoft/usersecrets:/home/app/.microsoft/usersecrets:ro
+      - ${HOME}/.aspnet/https:/home/app/.aspnet/https:ro
