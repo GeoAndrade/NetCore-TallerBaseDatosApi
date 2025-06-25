@@ -6,7 +6,7 @@ public class Order : Entity<long>
     public virtual Branch Branch { get; set; } = default!;
     public long CustomerId { get; set; }
     public virtual Customer Customer { get; set; } = default!;
-    public required DateTime Date { get; set; } 
+    public required DateTime Date { get; set; }
     [Precision(10, 2)]
     public required decimal Total { get; set; }
     public required int Amount { get; set; }
